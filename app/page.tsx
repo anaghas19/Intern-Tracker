@@ -1,6 +1,6 @@
 "use client"; // allow interactivity
 
-import { useState } from "react"; // gives components memory
+import { useEffect, useState } from "react"; // gives components memory
 
 // app can't see
 type Application = {
@@ -24,41 +24,57 @@ export default function Home() {
   const [role, setRole] = useState("");
   const [status, setStatus] = useState<Application["status"]>("Applied");
   const [filter, setFilter] = useState<"All" | Application["status"]>("All");
+  const [apps, setApps] = useState<Application[]>([]);
 
-  const [apps, setApps] = useState<Application[]>([
-    {
-      id: "seed-1",
-      company: "Example Co",
-      role: "Software Intern",
-      status: "Applied",
-      createdAt: new Date().toLocaleDateString(),
-    },
-  ]);
+  useEffect(() => {
+    async function loadApps() {
+      const res = await fetch("/api/applications");
+      const data = await res.json();
+      setApps(data);
+    }
 
-  function addApplication(e: React.FormEvent) {
+    loadApps();
+  }, []);
+
+  async function addApplication(e: React.FormEvent) {
     e.preventDefault();
-
+  
     const c = company.trim();
     const r = role.trim();
     if (!c || !r) return;
-
-    const newApp: Application = {
-      id: crypto.randomUUID(),
-      company: c,
-      role: r,
-      status,
-      createdAt: new Date().toLocaleDateString(),
-    };
-
+  
+    const res = await fetch("/api/applications", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        company: c,
+        role: r,
+        status,
+      }),
+    });
+  
+    const newApp = await res.json();
     setApps((prev) => [newApp, ...prev]);
+  
     setCompany("");
     setRole("");
     setStatus("Applied");
   }
 
-  function removeApplication(id: string) {
+  async function removeApplication(id: string) {
+    const res = await fetch(`/api/applications?id=${encodeURIComponent(id)}`, {
+      method: "DELETE",
+    });
+  
+    if (!res.ok) {
+      console.error("Failed to delete", await res.text());
+      return;
+    }
+  
     setApps((prev) => prev.filter((a) => a.id !== id));
   }
+  
+  
 
   const visibleApps =
     filter === "All" ? apps : apps.filter((a) => a.status === filter);
