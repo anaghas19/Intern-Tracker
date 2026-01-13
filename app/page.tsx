@@ -140,10 +140,12 @@ export default function Home() {
               type="submit"
               className="
                 inline-flex items-center justify-center
-                rounded-lg border border-black
-                bg-black px-4 py-2
-                text-sm font-medium text-white
-                hover:bg-gray-800
+                rounded-md
+                border border-green-600
+                bg-white px-3 py-1
+                text-sm font-medium text-green-600
+                shadow-sm
+                hover:bg-red-50
                 transition
               "
             >
@@ -184,7 +186,16 @@ export default function Home() {
 
                   <button
                     onClick={() => removeApplication(a.id)}
-                    className="text-sm text-red-600 hover:underline"
+                    className="
+                      inline-flex items-center justify-center
+                      rounded-md
+                      border border-red-600
+                      bg-white px-3 py-1
+                      text-sm font-medium text-red-600
+                      shadow-sm
+                      hover:bg-red-50
+                      transition
+                    "
                   >
                     Delete
                   </button>
